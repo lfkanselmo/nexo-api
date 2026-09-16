@@ -6,6 +6,7 @@ import com.nexo.domain.exception.PropertyNotFoundException;
 import com.nexo.domain.model.Property;
 import com.nexo.domain.port.PropertyRepository;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,5 +39,10 @@ class PropertyController {
     ResponseEntity<PropertyResponse> findById(@PathVariable UUID id) {
         Property property = propertyRepository.findById(id).orElseThrow(() -> new PropertyNotFoundException(id));
         return ResponseEntity.ok(PropertyResponse.from(property));
+    }
+
+    @GetMapping
+    List<PropertyResponse> findAll() {
+        return propertyRepository.findAll().stream().map(PropertyResponse::from).toList();
     }
 }

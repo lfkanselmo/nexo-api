@@ -12,5 +12,7 @@ public interface ContractRepository {
 
     Optional<LeaseContract> findById(UUID id);
 
+    List<LeaseContract> findAll();
+
     List<LeaseContract> findByStatus(LeaseStatus status);
 }

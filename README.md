@@ -66,9 +66,12 @@ a `asString()`.
 | Método | Ruta | Qué hace |
 | :--- | :--- | :--- |
 | POST | `/properties` | Crea una propiedad |
+| GET | `/properties` | Lista todas las propiedades |
 | POST | `/tenants` | Crea un inquilino |
+| GET | `/tenants` | Lista todos los inquilinos |
 | POST | `/contracts` | Crea un contrato en `DRAFT` |
 | GET | `/contracts/{id}` | Consulta un contrato |
+| GET | `/contracts` | Lista todos los contratos |
 | GET | `/contracts?status=ACTIVE` | Lista contratos por estado |
 | POST | `/contracts/{id}/activate` | `DRAFT`/`RENEWAL`/`OVERDUE` → `ACTIVE` |
 | POST | `/contracts/{id}/terminate` | `ACTIVE`/`OVERDUE` → `TERMINATED` |

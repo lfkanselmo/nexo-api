@@ -6,6 +6,7 @@ import com.nexo.domain.exception.TenantNotFoundException;
 import com.nexo.domain.model.Tenant;
 import com.nexo.domain.port.TenantRepository;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,5 +39,10 @@ class TenantController {
     ResponseEntity<TenantResponse> findById(@PathVariable UUID id) {
         Tenant tenant = tenantRepository.findById(id).orElseThrow(() -> new TenantNotFoundException(id));
         return ResponseEntity.ok(TenantResponse.from(tenant));
+    }
+
+    @GetMapping
+    List<TenantResponse> findAll() {
+        return tenantRepository.findAll().stream().map(TenantResponse::from).toList();
     }
 }

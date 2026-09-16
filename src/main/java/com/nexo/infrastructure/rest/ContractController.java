@@ -5,6 +5,7 @@ import com.nexo.application.dto.ContractResponse;
 import com.nexo.application.dto.PenaltyResponse;
 import com.nexo.application.service.ContractLifecycleService;
 import com.nexo.application.service.PenaltyCalculator;
+import com.nexo.domain.model.LeaseContract;
 import com.nexo.domain.model.enums.LeaseStatus;
 import com.nexo.domain.port.ContractRepository;
 import jakarta.validation.Valid;
@@ -48,8 +49,9 @@ class ContractController {
     }
 
     @GetMapping
-    List<ContractResponse> findByStatus(@RequestParam LeaseStatus status) {
-        return contractRepository.findByStatus(status).stream().map(ContractResponse::from).toList();
+    List<ContractResponse> findAll(@RequestParam(required = false) LeaseStatus status) {
+        List<LeaseContract> contracts = status != null ? contractRepository.findByStatus(status) : contractRepository.findAll();
+        return contracts.stream().map(ContractResponse::from).toList();
     }
 
     @PostMapping("/{id}/activate")

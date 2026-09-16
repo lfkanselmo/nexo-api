@@ -2,6 +2,7 @@ package com.nexo.infrastructure.persistence;
 
 import com.nexo.domain.model.Tenant;
 import com.nexo.domain.port.TenantRepository;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
@@ -24,6 +25,11 @@ class JpaTenantRepository implements TenantRepository {
     @Override
     public Optional<Tenant> findById(UUID id) {
         return jpaRepository.findById(id).map(JpaTenantRepository::toDomain);
+    }
+
+    @Override
+    public List<Tenant> findAll() {
+        return jpaRepository.findAll().stream().map(JpaTenantRepository::toDomain).toList();
     }
 
     private static TenantEntity toEntity(Tenant tenant) {

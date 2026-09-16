@@ -29,6 +29,11 @@ class JpaContractRepository implements ContractRepository {
     }
 
     @Override
+    public List<LeaseContract> findAll() {
+        return jpaRepository.findAll().stream().map(JpaContractRepository::toDomain).toList();
+    }
+
+    @Override
     public List<LeaseContract> findByStatus(LeaseStatus status) {
         return jpaRepository.findByStatus(status).stream().map(JpaContractRepository::toDomain).toList();
     }

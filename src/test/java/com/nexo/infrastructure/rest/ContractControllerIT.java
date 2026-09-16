@@ -148,4 +148,31 @@ class ContractControllerIT {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1));
     }
+
+    @Test
+    void listsAllContractsWithoutAStatusFilter() throws Exception {
+        String propertyId = createPropertyId();
+        String tenantId = createTenantId();
+        mockMvc.perform(MockMvcRequestBuilders.post("/contracts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(createContractRequest(propertyId, tenantId)));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/contracts"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    void listsAllPropertiesAndTenants() throws Exception {
+        createPropertyId();
+        createTenantId();
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/properties"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/tenants"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1));
+    }
 }

@@ -2,6 +2,7 @@ package com.nexo.infrastructure.persistence;
 
 import com.nexo.domain.model.Property;
 import com.nexo.domain.port.PropertyRepository;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
@@ -24,6 +25,11 @@ class JpaPropertyRepository implements PropertyRepository {
     @Override
     public Optional<Property> findById(UUID id) {
         return jpaRepository.findById(id).map(JpaPropertyRepository::toDomain);
+    }
+
+    @Override
+    public List<Property> findAll() {
+        return jpaRepository.findAll().stream().map(JpaPropertyRepository::toDomain).toList();
     }
 
     private static PropertyEntity toEntity(Property property) {

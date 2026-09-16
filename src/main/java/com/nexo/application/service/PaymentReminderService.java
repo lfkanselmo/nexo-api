@@ -10,11 +10,14 @@ import com.nexo.domain.port.ReminderNotifier;
 import com.nexo.domain.port.TenantRepository;
 import java.time.LocalDate;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PaymentReminderService {
 
+    private static final Logger log = LoggerFactory.getLogger(PaymentReminderService.class);
     private static final Set<LeaseStatus> REMINDABLE_STATUSES = Set.of(LeaseStatus.ACTIVE, LeaseStatus.OVERDUE);
 
     private final PaymentRepository paymentRepository;
@@ -43,7 +46,11 @@ public class PaymentReminderService {
             if (tenant == null) {
                 continue;
             }
-            reminderNotifier.remind(tenant, contract, payment);
+            try {
+                reminderNotifier.remind(tenant, contract, payment);
+            } catch (RuntimeException e) {
+                log.error("No se pudo enviar el recordatorio del pago {} al inquilino {}", payment.getId(), tenant.getId(), e);
+            }
         }
     }
 }

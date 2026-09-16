@@ -2,7 +2,6 @@ package com.nexo.infrastructure.rest;
 
 import static org.hamcrest.Matchers.containsString;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nexo.TestcontainersConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +12,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 class ContractControllerIT {
 
     @Autowired
@@ -48,7 +50,7 @@ class ContractControllerIT {
     }
 
     private String extractId(String json) throws Exception {
-        return objectMapper.readTree(json).get("id").asText();
+        return objectMapper.readTree(json).get("id").asString();
     }
 
     private String createContractRequest(String propertyId, String tenantId) {
@@ -114,5 +116,36 @@ class ContractControllerIT {
     void returnsNotFoundForAnUnknownContract() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/contracts/00000000-0000-0000-0000-000000000000"))
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    void rejectsSchedulingAPaymentForAnUnknownContract() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/contracts/00000000-0000-0000-0000-000000000000/payments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"dueDate\":\"2026-01-01\",\"amount\":100.00}"))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    void schedulesAndListsPaymentsForAContract() throws Exception {
+        String propertyId = createPropertyId();
+        String tenantId = createTenantId();
+        String contractJson = mockMvc
+                .perform(MockMvcRequestBuilders.post("/contracts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createContractRequest(propertyId, tenantId)))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        String contractId = extractId(contractJson);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/contracts/" + contractId + "/payments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"dueDate\":\"2026-01-01\",\"amount\":100.00}"))
+                .andExpect(MockMvcResultMatchers.status().isCreated());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/contracts/" + contractId + "/payments"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1));
     }
 }

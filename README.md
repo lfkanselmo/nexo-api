@@ -36,7 +36,14 @@ Las pruebas de integración usan Testcontainers — levantan su propio Postgres 
 dependen del `docker compose` de arriba. En Windows con Docker Desktop a veces no coopera (llegó a
 fallar incluso con `DOCKER_HOST` fijado a mano); si pasa, revisar primero que Docker Desktop esté
 realmente respondiendo (`docker info`) antes de perder tiempo con la configuración del pipe — en
-esta máquina resultó ser que Docker Desktop se había colgado sin más.
+esta máquina resultó ser que Docker Desktop se había colgado sin más, y con eso resuelto la suite
+completa corre sin problema.
+
+Ojo si vienen de Spring Boot 3: acá el `ObjectMapper` que Spring autoconfigura es el de
+**Jackson 3** (`tools.jackson.databind.ObjectMapper`), no el clásico `com.fasterxml.jackson.databind`
+— son tipos distintos, así que inyectar el paquete viejo falla con "no qualifying bean" aunque el
+jar de Jackson 2 siga presente transitivamente. `asText()` en `JsonNode` también cambió de nombre,
+a `asString()`.
 
 ## Arquitectura
 
@@ -52,7 +59,7 @@ esta máquina resultó ser que Docker Desktop se había colgado sin más.
   después de guardar.
 - `infrastructure/rest`: los controllers y el `GlobalExceptionHandler` que traduce las excepciones
   de dominio a códigos HTTP (404 para "no existe", 409 para una transición inválida, 400 para
-  validación de campos).
+  validación de campos, 500 genérico para cualquier otra cosa no prevista, siempre logueada).
 
 ## Endpoints
 

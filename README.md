@@ -87,3 +87,23 @@ reciente. `overdueDays` reporta el peor caso (el pago más atrasado), no un prom
 Las estrategias viven en `application/strategy` como `@Component` de Spring — `PenaltyCalculator`
 las recibe todas inyectadas y arma un mapa por `InterestType`, así que agregar un tercer esquema de
 interés el día de mañana no toca ni una línea de `PenaltyCalculator`.
+
+## Cron de vencidos y recordatorios
+
+`OverdueDetector` corre todos los días (`nexo.scheduler.overdue-cron`, `0 0 6 * * *` por defecto —
+6am) y hace dos cosas: cruza los contratos `ACTIVE` con los pagos `PENDING` vencidos y pasa a
+`OVERDUE` los que correspondan, y le pide a `PaymentReminderService` que avise a los inquilinos por
+correo (vía MailHog en desarrollo). `PaymentReminderService` solo manda recordatorio si el contrato
+está `ACTIVE` u `OVERDUE` — un contrato en `DRAFT` con un pago cargado no debería generar spam de
+correos para siempre, y en un momento lo hacía (bug real, encontrado acelerando el cron a mano con
+`OVERDUE_CRON="*/15 * * * * *"` y viendo Mail Hog llenarse de correos repetidos a un inquilino de
+un contrato que nunca se activó).
+
+Para probar esto sin esperar hasta las 6am:
+
+```bash
+OVERDUE_CRON="*/15 * * * * *" ./gradlew bootRun
+```
+
+y revisar `http://localhost:8025` (la UI de MailHog) mientras el contrato correspondiente tiene un
+pago vencido y está `ACTIVE`.

@@ -32,7 +32,9 @@ management:
         include: health,info,metrics
 
 nexo:
-  penalty:
+  mail:
     reminder-from: ${REMINDER_FROM_EMAIL:no-reply@nexo.local}
+  scheduler:
+    overdue-cron: ${OVERDUE_CRON:0 0 6 * * *}
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:4200}

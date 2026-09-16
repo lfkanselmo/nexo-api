@@ -33,9 +33,10 @@ si ya tenés otro Postgres corriendo en la máquina (nativo o de otro proyecto d
 ```
 
 Las pruebas de integración usan Testcontainers — levantan su propio Postgres en Docker, no
-dependen del `docker compose` de arriba. En Windows con Docker Desktop a veces hace falta fijar
-`DOCKER_HOST` a la pipe activa (`docker context ls` te dice cuál) para que Testcontainers la
-encuentre.
+dependen del `docker compose` de arriba. En Windows con Docker Desktop a veces no coopera (llegó a
+fallar incluso con `DOCKER_HOST` fijado a mano); si pasa, revisar primero que Docker Desktop esté
+realmente respondiendo (`docker info`) antes de perder tiempo con la configuración del pipe — en
+esta máquina resultó ser que Docker Desktop se había colgado sin más.
 
 ## Arquitectura
 
@@ -46,3 +47,26 @@ encuentre.
 - `domain/port`: los repositorios como interfaces — el dominio no sabe que existe Postgres.
 - `infrastructure/persistence`: las entidades JPA y los adaptadores que implementan los puertos,
   mapeando entidad ↔ modelo de dominio en los dos sentidos.
+- `application/service/ContractLifecycleService`: crea contratos (validando que la propiedad y el
+  inquilino existan) y orquesta las transiciones de estado, publicando el evento de dominio
+  después de guardar.
+- `infrastructure/rest`: los controllers y el `GlobalExceptionHandler` que traduce las excepciones
+  de dominio a códigos HTTP (404 para "no existe", 409 para una transición inválida, 400 para
+  validación de campos).
+
+## Endpoints
+
+| Método | Ruta | Qué hace |
+| :--- | :--- | :--- |
+| POST | `/properties` | Crea una propiedad |
+| POST | `/tenants` | Crea un inquilino |
+| POST | `/contracts` | Crea un contrato en `DRAFT` |
+| GET | `/contracts/{id}` | Consulta un contrato |
+| GET | `/contracts?status=ACTIVE` | Lista contratos por estado |
+| POST | `/contracts/{id}/activate` | `DRAFT`/`RENEWAL`/`OVERDUE` → `ACTIVE` |
+| POST | `/contracts/{id}/terminate` | `ACTIVE`/`OVERDUE` → `TERMINATED` |
+| POST | `/contracts/{id}/renew` | `ACTIVE` → `RENEWAL` |
+
+Probado a mano contra Postgres real (crear → activar → terminar → segundo terminate rechazado con
+409 → 404 en un id inexistente → 400 en una validación de campo) mientras Testcontainers no
+cooperaba en esta máquina — ver la nota sobre Docker Desktop más abajo.

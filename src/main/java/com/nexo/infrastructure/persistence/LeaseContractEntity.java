@@ -1,5 +1,6 @@
 package com.nexo.infrastructure.persistence;
 
+import com.nexo.domain.model.enums.InterestType;
 import com.nexo.domain.model.enums.LeaseStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,6 +39,10 @@ public class LeaseContractEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    private InterestType interestType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private LeaseStatus status;
 
     protected LeaseContractEntity() {
@@ -51,6 +56,7 @@ public class LeaseContractEntity {
             LocalDate endDate,
             BigDecimal monthlyRent,
             BigDecimal dailyInterestRate,
+            InterestType interestType,
             LeaseStatus status) {
         this.id = id;
         this.propertyId = propertyId;
@@ -59,6 +65,7 @@ public class LeaseContractEntity {
         this.endDate = endDate;
         this.monthlyRent = monthlyRent;
         this.dailyInterestRate = dailyInterestRate;
+        this.interestType = interestType;
         this.status = status;
     }
 
@@ -88,6 +95,10 @@ public class LeaseContractEntity {
 
     public BigDecimal getDailyInterestRate() {
         return dailyInterestRate;
+    }
+
+    public InterestType getInterestType() {
+        return interestType;
     }
 
     public LeaseStatus getStatus() {

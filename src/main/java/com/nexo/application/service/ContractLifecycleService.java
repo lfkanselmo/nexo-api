@@ -46,6 +46,7 @@ public class ContractLifecycleService {
                 request.endDate(),
                 request.monthlyRent(),
                 request.dailyInterestRate(),
+                request.interestType(),
                 LeaseStatus.DRAFT);
 
         return contractRepository.save(contract);

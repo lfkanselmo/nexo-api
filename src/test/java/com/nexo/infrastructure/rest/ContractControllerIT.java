@@ -52,16 +52,21 @@ class ContractControllerIT {
     }
 
     private String createContractRequest(String propertyId, String tenantId) {
+        return createContractRequest(propertyId, tenantId, "2026-01-01", "2026-12-31", "FIXED");
+    }
+
+    private String createContractRequest(String propertyId, String tenantId, String startDate, String endDate, String interestType) {
         return """
                 {
                   "propertyId": "%s",
                   "tenantId": "%s",
-                  "startDate": "2026-01-01",
-                  "endDate": "2026-12-31",
+                  "startDate": "%s",
+                  "endDate": "%s",
                   "monthlyRent": 1200.00,
-                  "dailyInterestRate": 0.0015
+                  "dailyInterestRate": 0.0015,
+                  "interestType": "%s"
                 }
-                """.formatted(propertyId, tenantId);
+                """.formatted(propertyId, tenantId, startDate, endDate, interestType);
     }
 
     @Test

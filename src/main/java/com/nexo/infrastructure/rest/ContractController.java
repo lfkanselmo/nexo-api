@@ -2,12 +2,16 @@ package com.nexo.infrastructure.rest;
 
 import com.nexo.application.dto.ContractRequest;
 import com.nexo.application.dto.ContractResponse;
+import com.nexo.application.dto.PenaltyResponse;
 import com.nexo.application.service.ContractLifecycleService;
+import com.nexo.application.service.PenaltyCalculator;
 import com.nexo.domain.model.enums.LeaseStatus;
 import com.nexo.domain.port.ContractRepository;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,10 +28,12 @@ class ContractController {
 
     private final ContractLifecycleService lifecycleService;
     private final ContractRepository contractRepository;
+    private final PenaltyCalculator penaltyCalculator;
 
-    ContractController(ContractLifecycleService lifecycleService, ContractRepository contractRepository) {
+    ContractController(ContractLifecycleService lifecycleService, ContractRepository contractRepository, PenaltyCalculator penaltyCalculator) {
         this.lifecycleService = lifecycleService;
         this.contractRepository = contractRepository;
+        this.penaltyCalculator = penaltyCalculator;
     }
 
     @PostMapping
@@ -59,5 +65,10 @@ class ContractController {
     @PostMapping("/{id}/renew")
     ContractResponse renew(@PathVariable UUID id) {
         return ContractResponse.from(lifecycleService.renew(id));
+    }
+
+    @GetMapping("/{id}/penalty")
+    PenaltyResponse penalty(@PathVariable UUID id, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate asOf) {
+        return penaltyCalculator.calculate(lifecycleService.findById(id), asOf != null ? asOf : LocalDate.now());
     }
 }

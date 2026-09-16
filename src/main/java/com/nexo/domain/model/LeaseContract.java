@@ -2,6 +2,7 @@ package com.nexo.domain.model;
 
 import com.nexo.domain.event.LeaseStatusChangedEvent;
 import com.nexo.domain.exception.InvalidLeaseTransitionException;
+import com.nexo.domain.model.enums.InterestType;
 import com.nexo.domain.model.enums.LeaseStatus;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,6 +19,7 @@ public class LeaseContract {
     private final LocalDate endDate;
     private final BigDecimal monthlyRent;
     private final BigDecimal dailyInterestRate;
+    private final InterestType interestType;
     private LeaseStatus status;
     private final List<LeaseStatusChangedEvent> domainEvents = new ArrayList<>();
 
@@ -29,6 +31,7 @@ public class LeaseContract {
             LocalDate endDate,
             BigDecimal monthlyRent,
             BigDecimal dailyInterestRate,
+            InterestType interestType,
             LeaseStatus status) {
         this.id = id;
         this.propertyId = propertyId;
@@ -37,6 +40,7 @@ public class LeaseContract {
         this.endDate = endDate;
         this.monthlyRent = monthlyRent;
         this.dailyInterestRate = dailyInterestRate;
+        this.interestType = interestType;
         this.status = status;
     }
 
@@ -80,6 +84,10 @@ public class LeaseContract {
 
     public BigDecimal getDailyInterestRate() {
         return dailyInterestRate;
+    }
+
+    public InterestType getInterestType() {
+        return interestType;
     }
 
     public LeaseStatus getStatus() {

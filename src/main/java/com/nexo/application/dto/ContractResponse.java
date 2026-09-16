@@ -1,6 +1,7 @@
 package com.nexo.application.dto;
 
 import com.nexo.domain.model.LeaseContract;
+import com.nexo.domain.model.enums.InterestType;
 import com.nexo.domain.model.enums.LeaseStatus;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,6 +15,7 @@ public record ContractResponse(
         LocalDate endDate,
         BigDecimal monthlyRent,
         BigDecimal dailyInterestRate,
+        InterestType interestType,
         LeaseStatus status) {
 
     public static ContractResponse from(LeaseContract contract) {
@@ -25,6 +27,7 @@ public record ContractResponse(
                 contract.getEndDate(),
                 contract.getMonthlyRent(),
                 contract.getDailyInterestRate(),
+                contract.getInterestType(),
                 contract.getStatus());
     }
 }

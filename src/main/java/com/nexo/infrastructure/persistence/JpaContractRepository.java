@@ -42,6 +42,7 @@ class JpaContractRepository implements ContractRepository {
                 contract.getEndDate(),
                 contract.getMonthlyRent(),
                 contract.getDailyInterestRate(),
+                contract.getInterestType(),
                 contract.getStatus());
     }
 
@@ -54,6 +55,7 @@ class JpaContractRepository implements ContractRepository {
                 entity.getEndDate(),
                 entity.getMonthlyRent(),
                 entity.getDailyInterestRate(),
+                entity.getInterestType(),
                 entity.getStatus());
     }
 }

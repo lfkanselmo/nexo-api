@@ -66,7 +66,24 @@ esta máquina resultó ser que Docker Desktop se había colgado sin más.
 | POST | `/contracts/{id}/activate` | `DRAFT`/`RENEWAL`/`OVERDUE` → `ACTIVE` |
 | POST | `/contracts/{id}/terminate` | `ACTIVE`/`OVERDUE` → `TERMINATED` |
 | POST | `/contracts/{id}/renew` | `ACTIVE` → `RENEWAL` |
+| POST | `/contracts/{id}/payments` | Agenda un pago pendiente (fecha de vencimiento + monto) |
+| GET | `/contracts/{id}/payments` | Lista los pagos de un contrato |
+| GET | `/contracts/{id}/penalty?asOf=YYYY-MM-DD` | Calcula mora e interés a la fecha dada (por defecto, hoy) |
 
 Probado a mano contra Postgres real (crear → activar → terminar → segundo terminate rechazado con
-409 → 404 en un id inexistente → 400 en una validación de campo) mientras Testcontainers no
-cooperaba en esta máquina — ver la nota sobre Docker Desktop más abajo.
+409 → 404 en un id inexistente → 400 en una validación de campo; agendar un pago vencido y calcular
+su penalidad) mientras Testcontainers no cooperaba en esta máquina — ver la nota sobre Docker
+Desktop más abajo.
+
+## Motor de penalización
+
+`PenaltyCalculator` busca los pagos `PENDING` de un contrato cuya fecha de vencimiento ya pasó,
+y por cada uno le aplica la estrategia de interés que corresponda según `LeaseContract.interestType`
+(`FIXED`: interés simple, `principal * tasa * días`; `VARIABLE`: interés compuesto día a día,
+`principal * ((1 + tasa)^días − 1)`). El resultado suma el capital adeudado y el interés de todos
+los pagos vencidos — si el inquilino debe dos meses, los dos entran en la cuenta, no solo el más
+reciente. `overdueDays` reporta el peor caso (el pago más atrasado), no un promedio.
+
+Las estrategias viven en `application/strategy` como `@Component` de Spring — `PenaltyCalculator`
+las recibe todas inyectadas y arma un mapa por `InterestType`, así que agregar un tercer esquema de
+interés el día de mañana no toca ni una línea de `PenaltyCalculator`.

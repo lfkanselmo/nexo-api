@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.nexo.domain.event.LeaseStatusChangedEvent;
 import com.nexo.domain.exception.InvalidLeaseTransitionException;
+import com.nexo.domain.model.enums.InterestType;
 import com.nexo.domain.model.enums.LeaseStatus;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ class LeaseContractTest {
                 LocalDate.of(2026, 12, 31),
                 new BigDecimal("1200.00"),
                 new BigDecimal("0.0015"),
+                InterestType.FIXED,
                 status);
     }
 

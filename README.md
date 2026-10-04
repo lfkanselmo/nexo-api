@@ -32,6 +32,10 @@ si ya tenés otro Postgres corriendo en la máquina (nativo o de otro proyecto d
 ./gradlew test
 ```
 
+Si clonás este repo en Windows y vas a comitear desde ahí por primera vez, revisá que `gradlew`
+no haya perdido el bit ejecutable (`git ls-files -s gradlew` debe decir `100755`, no `100644`)
+— si no, el CI en GitHub Actions (Linux) falla con `Permission denied` al primer push.
+
 Las pruebas de integración usan Testcontainers — levantan su propio Postgres en Docker, no
 dependen del `docker compose` de arriba. En Windows con Docker Desktop a veces no coopera (llegó a
 fallar incluso con `DOCKER_HOST` fijado a mano); si pasa, revisar primero que Docker Desktop esté
